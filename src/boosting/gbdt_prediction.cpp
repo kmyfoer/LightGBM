@@ -10,16 +10,21 @@
 
 namespace LightGBM {
 
-void GBDT::PredictRaw(const double* features, double* output, const PredictionEarlyStopInstance* early_stop) const {
+void GBDT::PredictRaw(const double* features, double* output, const PredictionEarlyStopInstance* early_stop, int inner_thread_num) const {
   int early_stop_round_counter = 0;
   // set zero
   std::memset(output, 0, sizeof(double) * num_tree_per_iteration_);
   const int end_iteration_for_pred = start_iteration_for_pred_ + num_iteration_for_pred_;
   for (int i = start_iteration_for_pred_; i < end_iteration_for_pred; ++i) {
     // predict all the trees for one iteration
+    OMP_INIT_EX();
+#pragma omp parallel for num_threads(inner_thread_num)
     for (int k = 0; k < num_tree_per_iteration_; ++k) {
+      OMP_LOOP_EX_BEGIN();
       output[k] += models_[i * num_tree_per_iteration_ + k]->Predict(features);
+      OMP_LOOP_EX_END();
     }
+    OMP_THROW_EX();
     // check early stopping
     ++early_stop_round_counter;
     if (early_stop->round_period == early_stop_round_counter) {
@@ -52,8 +57,8 @@ void GBDT::PredictRawByMap(const std::unordered_map<int, double>& features, doub
   }
 }
 
-void GBDT::Predict(const double* features, double* output, const PredictionEarlyStopInstance* early_stop) const {
-  PredictRaw(features, output, early_stop);
+void GBDT::Predict(const double* features, double* output, const PredictionEarlyStopInstance* early_stop, int inner_thread_num) const {
+  PredictRaw(features, output, early_stop, inner_thread_num);
   if (average_output_) {
     for (int k = 0; k < num_tree_per_iteration_; ++k) {
       output[k] /= num_iteration_for_pred_;

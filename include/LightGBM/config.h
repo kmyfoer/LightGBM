@@ -1024,6 +1024,8 @@ struct Config {
 
   #pragma endregion
 
+  int inner_thread_num = 1;
+
   size_t file_load_progress_interval_bytes = size_t(10) * 1024 * 1024 * 1024;
 
   bool is_parallel = false;

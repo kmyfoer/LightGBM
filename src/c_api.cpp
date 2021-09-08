@@ -76,9 +76,10 @@ class SingleRowPredictor {
     early_stop_ = config.pred_early_stop;
     early_stop_freq_ = config.pred_early_stop_freq;
     early_stop_margin_ = config.pred_early_stop_margin;
+    inner_thread_num_ = config.inner_thread_num;
     iter_ = num_iter;
     predictor_.reset(new Predictor(boosting, start_iter, iter_, is_raw_score, is_predict_leaf, predict_contrib,
-                                   early_stop_, early_stop_freq_, early_stop_margin_));
+                                   early_stop_, early_stop_freq_, early_stop_margin_, inner_thread_num_));
     num_pred_in_one_row = boosting->NumPredictOneRow(start_iter, iter_, is_predict_leaf, predict_contrib);
     predict_function = predictor_->GetPredictFunction();
     num_total_model_ = boosting->NumberOfTotalModel();
@@ -99,6 +100,7 @@ class SingleRowPredictor {
   bool early_stop_;
   int early_stop_freq_;
   double early_stop_margin_;
+  int inner_thread_num_;
   int iter_;
   int num_total_model_;
 };
@@ -421,7 +423,7 @@ class Booster {
     }
 
     return Predictor(boosting_.get(), start_iteration, num_iteration, is_raw_score, is_predict_leaf, predict_contrib,
-                        config.pred_early_stop, config.pred_early_stop_freq, config.pred_early_stop_margin);
+                        config.pred_early_stop, config.pred_early_stop_freq, config.pred_early_stop_margin, config.inner_thread_num);
   }
 
   void Predict(int start_iteration, int num_iteration, int predict_type, int nrow, int ncol,
@@ -711,7 +713,7 @@ class Booster {
       is_raw_score = false;
     }
     Predictor predictor(boosting_.get(), start_iteration, num_iteration, is_raw_score, is_predict_leaf, predict_contrib,
-                        config.pred_early_stop, config.pred_early_stop_freq, config.pred_early_stop_margin);
+                        config.pred_early_stop, config.pred_early_stop_freq, config.pred_early_stop_margin, config.inner_thread_num);
     bool bool_data_has_header = data_has_header > 0 ? true : false;
     predictor.Predict(data_filename, result_filename, bool_data_has_header, config.predict_disable_shape_check,
                       config.precise_float_parser);

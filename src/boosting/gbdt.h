@@ -230,13 +230,13 @@ class GBDT : public GBDTBase {
   }
 
   void PredictRaw(const double* features, double* output,
-                  const PredictionEarlyStopInstance* earlyStop) const override;
+                  const PredictionEarlyStopInstance* earlyStop, int inner_thread_num) const override;
 
   void PredictRawByMap(const std::unordered_map<int, double>& features, double* output,
                        const PredictionEarlyStopInstance* early_stop) const override;
 
   void Predict(const double* features, double* output,
-               const PredictionEarlyStopInstance* earlyStop) const override;
+               const PredictionEarlyStopInstance* earlyStop, int inner_thread_num) const override;
 
   void PredictByMap(const std::unordered_map<int, double>& features, double* output,
                     const PredictionEarlyStopInstance* early_stop) const override;

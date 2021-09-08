@@ -132,7 +132,7 @@ class LIGHTGBM_EXPORT Boosting {
   * \param early_stop Early stopping instance. If nullptr, no early stopping is applied and all models are evaluated.
   */
   virtual void PredictRaw(const double* features, double* output,
-                          const PredictionEarlyStopInstance* early_stop) const = 0;
+                          const PredictionEarlyStopInstance* early_stop, int inner_thread_num) const = 0;
 
   virtual void PredictRawByMap(const std::unordered_map<int, double>& features, double* output,
                                const PredictionEarlyStopInstance* early_stop) const = 0;
@@ -145,7 +145,7 @@ class LIGHTGBM_EXPORT Boosting {
   * \param early_stop Early stopping instance. If nullptr, no early stopping is applied and all models are evaluated.
   */
   virtual void Predict(const double* features, double* output,
-                       const PredictionEarlyStopInstance* early_stop) const = 0;
+                       const PredictionEarlyStopInstance* early_stop, int inner_thread_num = 1) const = 0;
 
   virtual void PredictByMap(const std::unordered_map<int, double>& features, double* output,
                             const PredictionEarlyStopInstance* early_stop) const = 0;

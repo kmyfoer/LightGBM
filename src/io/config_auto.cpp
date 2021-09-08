@@ -45,6 +45,7 @@ const std::unordered_map<std::string, std::string>& Config::alias_table() {
   {"num_thread", "num_threads"},
   {"nthread", "num_threads"},
   {"nthreads", "num_threads"},
+  {"inner_thread_num", "inner_thread_num"},
   {"n_jobs", "num_threads"},
   {"device", "device_type"},
   {"random_seed", "seed"},
@@ -183,6 +184,7 @@ const std::unordered_set<std::string>& Config::parameter_set() {
   "num_leaves",
   "tree_learner",
   "num_threads",
+  "inner_thread_num",
   "device_type",
   "seed",
   "deterministic",
@@ -326,6 +328,8 @@ void Config::GetMembersFromString(const std::unordered_map<std::string, std::str
   CHECK_LE(num_leaves, 131072);
 
   GetInt(params, "num_threads", &num_threads);
+
+  GetInt(params, "inner_thread_num", &inner_thread_num);
 
   GetBool(params, "deterministic", &deterministic);
 
@@ -640,6 +644,7 @@ std::string Config::SaveMembersToString() const {
   str_buf << "[learning_rate: " << learning_rate << "]\n";
   str_buf << "[num_leaves: " << num_leaves << "]\n";
   str_buf << "[num_threads: " << num_threads << "]\n";
+  str_buf << "[inner_thread_num: " << inner_thread_num << "]\n";
   str_buf << "[deterministic: " << deterministic << "]\n";
   str_buf << "[force_col_wise: " << force_col_wise << "]\n";
   str_buf << "[force_row_wise: " << force_row_wise << "]\n";
