@@ -32,6 +32,7 @@ Application::Application(int argc, char** argv) {
   LoadParameters(argc, argv);
   // set number of threads for openmp
   if (config_.num_threads > 0) {
+    omp_set_nested(1);
     omp_set_num_threads(config_.num_threads);
   }
   if (config_.data.size() == 0 && config_.task != TaskType::kConvertModel) {
