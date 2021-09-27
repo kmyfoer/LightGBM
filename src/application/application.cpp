@@ -92,7 +92,7 @@ void Application::LoadData() {
   PredictFunction predict_fun = nullptr;
   // need to continue training
   if (boosting_->NumberOfTotalModel() > 0 && config_.task != TaskType::KRefitTree) {
-    predictor.reset(new Predictor(boosting_.get(), 0, -1, true, false, false, false, -1, -1));
+    predictor.reset(new Predictor(boosting_.get(), 0, -1, true, false, false, false, -1, -1, 1));
     predict_fun = predictor->GetPredictFunction();
   }
 
@@ -221,7 +221,7 @@ void Application::Train() {
 void Application::Predict() {
   if (config_.task == TaskType::KRefitTree) {
     // create predictor
-    Predictor predictor(boosting_.get(), 0, -1, false, true, false, false, 1, 1);
+    Predictor predictor(boosting_.get(), 0, -1, false, true, false, false, 1, 1, 1);
     predictor.Predict(config_.data.c_str(), config_.output_result.c_str(), config_.header, config_.predict_disable_shape_check,
                       config_.precise_float_parser);
     TextReader<int> result_reader(config_.output_result.c_str(), false);
@@ -251,7 +251,8 @@ void Application::Predict() {
     Predictor predictor(boosting_.get(), config_.start_iteration_predict, config_.num_iteration_predict, config_.predict_raw_score,
                         config_.predict_leaf_index, config_.predict_contrib,
                         config_.pred_early_stop, config_.pred_early_stop_freq,
-                        config_.pred_early_stop_margin);
+                        config_.pred_early_stop_margin,
+                        config_.inner_thread_num);
     predictor.Predict(config_.data.c_str(),
                       config_.output_result.c_str(), config_.header, config_.predict_disable_shape_check,
                       config_.precise_float_parser);

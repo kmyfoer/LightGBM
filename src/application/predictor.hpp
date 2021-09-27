@@ -20,11 +20,6 @@
 #include <unordered_map>
 #include <utility>
 #include <vector>
-#include <chrono>
-#include <ctime>
-#include <cctype>
-#define NOMINMAX
-#include <windows.h>
 
 namespace LightGBM {
 
@@ -170,10 +165,6 @@ class Predictor {
     if (!writer->Init()) {
       Log::Fatal("Prediction results file %s cannot be created", result_filename);
     }
-    auto writer_csv = VirtualFileWriter::Make("res.csv");
-    if (!writer_csv->Init()) {
-      Log::Fatal("Prediction results file %s cannot be created", result_filename);
-    }
     auto label_idx = header ? -1 : boosting_->LabelIdx();
     auto parser = std::unique_ptr<Parser>(Parser::CreateParser(data_filename, header, boosting_->MaxFeatureIdx() + 1, label_idx,
                                                                precise_float_parser));
@@ -235,8 +226,8 @@ class Predictor {
     };
 
     std::function<void(data_size_t, const std::vector<std::string>&)>
-        process_fun = [&parser_fun, &writer, &writer_csv, this](
-                          data_size_t curcount, const std::vector<std::string>& lines) {
+        process_fun = [&parser_fun, &writer, this](
+                          data_size_t, const std::vector<std::string>& lines) {
       std::vector<std::pair<int, double>> oneline_features;
       std::vector<std::string> result_to_write(lines.size());
       std::vector<std::string> csv_to_write(lines.size());
@@ -249,28 +240,15 @@ class Predictor {
         parser_fun(lines[i].c_str(), &oneline_features);
         // predict
         std::vector<double> result(num_pred_one_row_);
-        LARGE_INTEGER StartingTime, EndingTime, ElapsedMicroseconds;
-        LARGE_INTEGER Frequency;
-        QueryPerformanceFrequency(&Frequency);
-        QueryPerformanceCounter(&StartingTime);
         predict_fun_(oneline_features, result.data());
-        QueryPerformanceCounter(&EndingTime);
-        ElapsedMicroseconds.QuadPart = EndingTime.QuadPart - StartingTime.QuadPart;
-        ElapsedMicroseconds.QuadPart *= 1000000;
-        ElapsedMicroseconds.QuadPart /= Frequency.QuadPart;
         auto str_result = Common::Join<double>(result, "\t");
         result_to_write[i] = str_result;
-        std::vector<std::string> csvresult{ std::to_string(i + curcount), std::to_string(oneline_features.size()), std::to_string(ElapsedMicroseconds.QuadPart) };
-        auto csv_result = Common::Join<std::string>(csvresult, ",");
-        csv_to_write[i] = csv_result;
         OMP_LOOP_EX_END();
       }
       OMP_THROW_EX();
       for (data_size_t i = 0; i < static_cast<data_size_t>(result_to_write.size()); ++i) {
         writer->Write(result_to_write[i].c_str(), result_to_write[i].size());
         writer->Write("\n", 1);
-        writer_csv->Write(csv_to_write[i].c_str(), csv_to_write[i].size());
-        writer_csv->Write("\n", 1);
       }
     };
     predict_data_reader.ReadAllAndProcessParallel(process_fun);
