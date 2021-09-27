@@ -230,7 +230,6 @@ class Predictor {
                           data_size_t, const std::vector<std::string>& lines) {
       std::vector<std::pair<int, double>> oneline_features;
       std::vector<std::string> result_to_write(lines.size());
-      std::vector<std::string> csv_to_write(lines.size());
       OMP_INIT_EX();
       #pragma omp parallel for schedule(static) firstprivate(oneline_features)
       for (data_size_t i = 0; i < static_cast<data_size_t>(lines.size()); ++i) {
