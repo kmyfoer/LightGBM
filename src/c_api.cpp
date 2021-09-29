@@ -2050,7 +2050,8 @@ int LGBM_BoosterPredictForCSRSingleRowFastInit(BoosterHandle handle,
     static_cast<int32_t>(num_col)));
 
   if (fastConfig_ptr->config.num_threads > 0) {
-    omp_set_num_threads(fastConfig_ptr->config.num_threads);
+	omp_set_nested(1);
+	omp_set_num_threads(fastConfig_ptr->config.num_threads);
   }
 
   fastConfig_ptr->booster->SetSingleRowPredictor(start_iteration, num_iteration, predict_type, fastConfig_ptr->config);
@@ -2098,6 +2099,7 @@ int LGBM_BoosterPredictForCSC(BoosterHandle handle,
   Config config;
   config.Set(param);
   if (config.num_threads > 0) {
+    omp_set_nested(1);
     omp_set_num_threads(config.num_threads);
   }
   int num_threads = OMP_NUM_THREADS();

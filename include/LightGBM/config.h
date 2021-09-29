@@ -201,6 +201,8 @@ struct Config {
   // desc = **Note**: please **don't** change this during training, especially when running multiple jobs simultaneously by external packages, otherwise it may cause undesirable errors
   int num_threads = 0;
 
+  int inner_thread_num = 1;
+
   // [doc-only]
   // type = enum
   // options = cpu, gpu, cuda
@@ -1023,8 +1025,6 @@ struct Config {
   #pragma endregion
 
   #pragma endregion
-
-  int inner_thread_num = 1;
 
   size_t file_load_progress_interval_bytes = size_t(10) * 1024 * 1024 * 1024;
 
